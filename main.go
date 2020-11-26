@@ -13,7 +13,7 @@ func setupRouter() *gin.Engine {
 
 	router := gin.Default()
 
-	router.GET("todos/", index)
+	router.GET("/todos", index)
 	router.GET("todos/:id", show)
 	router.POST("todos", store)
 	router.DELETE("todos/:id", delete)

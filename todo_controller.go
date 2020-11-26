@@ -48,7 +48,7 @@ func store(c *gin.Context) {
 
 	getDb().Create(&Todo{Title: json.Title, Body: json.Body})
 
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	c.JSON(http.StatusCreated, gin.H{"status": "item is created"})
 }
 
 func toggleUnDone(c *gin.Context) {
