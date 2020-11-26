@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"todo/todo"
 )
 
 func main() {
@@ -12,14 +13,13 @@ func main() {
 func setupRouter() *gin.Engine {
 
 	router := gin.Default()
+	dbConn := getDb()
 
-	router.GET("/todos", index)
-	router.GET("todos/:id", show)
-	router.POST("todos", store)
-	router.DELETE("todos/:id", delete)
-
-	router.PATCH("todos/:id/done", toggleDone)
-	router.PATCH("todos/:id/undone", toggleUnDone)
+	router.GET("/todos", todo.Index(dbConn))
+	router.GET("todos/:id/show", todo.Show(dbConn))
+	router.POST("todos", todo.Create(dbConn))
+	router.DELETE("todos/:id", todo.Delete(dbConn))
+	router.PATCH("todos/:id/done", todo.ToggleDone(dbConn))
 
 	return router
 }

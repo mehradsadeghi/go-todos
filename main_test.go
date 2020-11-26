@@ -1,17 +1,20 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"todo/todo"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIfIndexIsWorkingCorrectly(t *testing.T) {
-
 	setUpDB()
-
 	router := setupRouter()
 
 	w := httptest.NewRecorder()
@@ -20,36 +23,64 @@ func TestIfIndexIsWorkingCorrectly(t *testing.T) {
 
 	assert.Equal(t, 200, w.Code)
 
-	var todos []Todo
+	var todos []todo.Todo
 	getDb().First(&todos)
 
-	assert.Equal(t, len(todos), 0)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestIfItCanStore(t *testing.T) {
-
+func TestIfTodoCanBeShown(t *testing.T) {
 	setUpDB()
-
 	router := setupRouter()
 
+	getDb().Create(todo.New("meh", "rad"))
+
 	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/todos/1/show", nil)
+	assert.Nil(t, err)
 
-	data := Todo{Title: "mehrad", Body: "sadeghi"}
-
-	req, _ := http.NewRequest("POST", "/todos", data)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
 
-	var todos []Todo
+	var todos []todo.Todo
 	getDb().First(&todos)
 
-	assert.Equal(t, len(todos), 1)
-
-	getDb().Delete(todos)
+	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func (Todo) Read(p []byte) (n int, err error) {
-	p, _ = json.Marshal(p)
-	return len(p), nil
+func TestIfItCanCreate(t *testing.T) {
+	setUpDB()
+	router := setupRouter()
+
+	w := httptest.NewRecorder()
+
+	postBody, error := json.Marshal(todo.New("meh", "rad"))
+	assert.Nil(t, error)
+
+	req, err := http.NewRequest("POST", "/todos", bytes.NewBuffer(postBody))
+	require.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+}
+
+func TestIfTodoCanBeDeleted(t *testing.T) {
+	setUpDB()
+	router := setupRouter()
+
+	item := todo.New("meh", "rad")
+	db.Save(item)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("DELETE", "/todos/" + fmt.Sprint(item.Id), nil)
+	require.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var model todo.Todo
+	getDb().Delete(&model, item.Id)
 }
