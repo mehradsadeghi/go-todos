@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"todo/todo"
 
@@ -13,10 +15,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestIfIndexIsWorkingCorrectly(t *testing.T) {
-	setUpDB()
-	router := setupRouter()
+var router *gin.Engine
 
+func setup() {
+	setUpDB()
+	router = setupRouter()
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	os.Exit(code)
+}
+
+func TestIfIndexIsWorkingCorrectly(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/todos", nil)
 	router.ServeHTTP(w, req)
@@ -30,9 +42,6 @@ func TestIfIndexIsWorkingCorrectly(t *testing.T) {
 }
 
 func TestIfTodoCanBeShown(t *testing.T) {
-	setUpDB()
-	router := setupRouter()
-
 	getDb().Create(todo.New("meh", "rad"))
 
 	w := httptest.NewRecorder()
@@ -50,9 +59,6 @@ func TestIfTodoCanBeShown(t *testing.T) {
 }
 
 func TestIfItCanCreate(t *testing.T) {
-	setUpDB()
-	router := setupRouter()
-
 	w := httptest.NewRecorder()
 
 	postBody, error := json.Marshal(todo.New("meh", "rad"))
@@ -67,9 +73,6 @@ func TestIfItCanCreate(t *testing.T) {
 }
 
 func TestIfTodoCanBeDeleted(t *testing.T) {
-	setUpDB()
-	router := setupRouter()
-
 	item := todo.New("meh", "rad")
 	db.Save(item)
 
@@ -86,9 +89,6 @@ func TestIfTodoCanBeDeleted(t *testing.T) {
 }
 
 func TestIfDoneCanBeToggled(t *testing.T) {
-	setUpDB()
-	router := setupRouter()
-
 	item := todo.New("meh", "rad")
 	db.Save(item)
 
