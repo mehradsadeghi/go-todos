@@ -13,13 +13,11 @@ func main() {
 func setupRouter() *gin.Engine {
 
 	router := gin.Default()
-	dbConn := getDb()
-
-	router.GET("/todos", todo.Index(dbConn))
-	router.GET("todos/:id/show", todo.Show(dbConn))
-	router.POST("todos", todo.Create(dbConn))
-	router.DELETE("todos/:id", todo.Delete(dbConn))
-	router.PATCH("todos/:id/done", todo.ToggleDone(dbConn))
+	router.GET("/todos", todo.Index(getDb()))
+	router.GET("todos/:id/show", todo.Show(getDb()))
+	router.POST("todos", todo.Create(getDb()))
+	router.DELETE("todos/:id", todo.Delete(getDb()))
+	router.PATCH("todos/:id/done", todo.ToggleDone(getDb()))
 
 	return router
 }
