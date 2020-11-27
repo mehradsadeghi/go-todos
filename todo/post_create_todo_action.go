@@ -1,6 +1,7 @@
 package todo
 
 import (
+	log "github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,7 @@ func Create(dbConn *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.ShouldBindJSON(&requestBody); err != nil {
-			// todo logging
+			log.Error(err)
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, "Provided data is not valid")
 			return
 		}

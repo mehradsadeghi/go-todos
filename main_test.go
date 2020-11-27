@@ -84,3 +84,22 @@ func TestIfTodoCanBeDeleted(t *testing.T) {
 	var model todo.Todo
 	getDb().Delete(&model, item.Id)
 }
+
+func TestIfDoneCanBeToggled(t *testing.T) {
+	setUpDB()
+	router := setupRouter()
+
+	item := todo.New("meh", "rad")
+	db.Save(item)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("PATCH", "/todos/" + fmt.Sprint(item.Id) + "/done", nil)
+	require.Nil(t, err)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var model todo.Todo
+	getDb().Delete(&model, item.Id)
+}

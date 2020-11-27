@@ -1,6 +1,7 @@
 package todo
 
 import (
+	log "github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ func Show(dbConn *gorm.DB) gin.HandlerFunc {
 		}
 
 		if err := c.ShouldBindUri(&requestBody); err != nil {
-			// todo logging logrus
+			log.Error(err)
 			c.AbortWithStatusJSON(http.StatusUnprocessableEntity, string(requestBody.Id) + " is not valid")
 			return
 		}
@@ -24,7 +25,7 @@ func Show(dbConn *gorm.DB) gin.HandlerFunc {
 		var todo Todo
 
 		if result := dbConn.First(&todo, id); result.Error != nil {
-			// todo logging logrus
+			log.Error(result.Error)
 			c.AbortWithStatusJSON(http.StatusNotFound, "Item not found")
 			return
 		}
