@@ -20,11 +20,9 @@ func Show(dbConn *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		id := c.Params.ByName("id")
-
 		var todo Todo
 
-		if result := dbConn.First(&todo, id); result.Error != nil {
+		if result := dbConn.First(&todo, c.Param("id")); result.Error != nil {
 			log.Error(result.Error)
 			c.AbortWithStatusJSON(http.StatusNotFound, "Item not found")
 			return
